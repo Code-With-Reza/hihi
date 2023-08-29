@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'ythls',
+    name: 'livegarra',
     script: 'npm',
     args: 'start'
   }]
