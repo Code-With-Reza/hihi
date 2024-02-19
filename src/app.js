@@ -1,6 +1,7 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const app = express();
+
 const cache = require('./cache');
 
 const reChannelName = /"owner":{"videoOwnerRenderer":{"thumbnail":{"thumbnails":\[.*?\]},"title":{"runs":\[{"text":"(.+?)"/;
@@ -63,9 +64,9 @@ app.get('/channel/:id.m3u8', async (req, res, nxt) => {
     if (stream) {
       // Proxy the stream
       const response = await fetch(stream);
-      const streamHeaders = response.headers;
-      res.set(streamHeaders);
-      response.body.pipe(res);
+      const streamText = await response.text();
+      res.set('Content-Type', 'application/vnd.apple.mpegurl');
+      res.send(streamText);
     } else {
       // No stream found
       res.sendStatus(204);
@@ -84,9 +85,9 @@ app.get('/video/:id.m3u8', async (req, res, nxt) => {
     if (stream) {
       // Proxy the stream
       const response = await fetch(stream);
-      const streamHeaders = response.headers;
-      res.set(streamHeaders);
-      response.body.pipe(res);
+      const streamText = await response.text();
+      res.set('Content-Type', 'application/vnd.apple.mpegurl');
+      res.send(streamText);
     } else {
       // No stream found
       res.sendStatus(204);
@@ -115,9 +116,7 @@ app.get('/cache', async (req, res, nxt) => {
     }
 
     res.json(items);
-  } catch (err) { 
-    nxt(err);
-  }
+  } catch (err) { nxt(err); }
 });
 
 const port = process.env.PORT || 8080;
