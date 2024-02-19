@@ -60,29 +60,42 @@ app.get('/', (req, res, nxt) => {
 
 app.get('/channel/:id.m3u8', async (req, res, nxt) => {
   try {
-    const url = `https://www.youtube.com/channel/${req.params.id}/live`
-    const { stream } = await getLiveStream(url)
+    const url = `https://www.youtube.com/channel/${req.params.id}/live`;
+    const { stream } = await getLiveStream(url);
 
     if (stream) {
-      res.redirect(stream)
+      // Proxy the stream
+      const response = await axios.get(stream, { responseType: 'stream' });
+      res.set(response.headers);
+      response.data.pipe(res);
     } else {
-      res.sendStatus(204)
+      // No stream found
+      res.sendStatus(204);
     }
-  } catch (err) { nxt(err) }
-})
+  } catch (err) {
+    nxt(err);
+  }
+});
 
+// Proxy route for video
 app.get('/video/:id.m3u8', async (req, res, nxt) => {
   try {
-    const url = `https://www.youtube.com/watch?v=${req.params.id}/live`
-    const { stream } = await getLiveStream(url)
+    const url = `https://www.youtube.com/watch?v=${req.params.id}/live`;
+    const { stream } = await getLiveStream(url);
 
     if (stream) {
-      res.redirect(stream)
+      // Proxy the stream
+      const response = await axios.get(stream, { responseType: 'stream' });
+      res.set(response.headers);
+      response.data.pipe(res);
     } else {
-      res.sendStatus(204)
+      // No stream found
+      res.sendStatus(204);
     }
-  } catch (err) { nxt(err) }
-})
+  } catch (err) {
+    nxt(err);
+  }
+});
 
 app.get('/cache', async (req, res, nxt) => {
   try {
